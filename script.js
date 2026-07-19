@@ -1,29 +1,40 @@
-const carousel = document.querySelector('[data-carousel]');
+// Footer year
+document.getElementById("year").textContent = new Date().getFullYear();
 
-if (carousel) {
-  const slides = Array.from(carousel.children);
-  const nextButton = document.querySelector('[data-next]');
-  const prevButton = document.querySelector('[data-prev]');
+// Mobile nav toggle
+const navToggle = document.getElementById("navToggle");
+const navLinks = document.querySelector(".nav__links");
 
-  if (slides.length) {
-    slides[0].classList.add('active');
+navToggle.addEventListener("click", () => {
+  const isOpen = navLinks.classList.toggle("is-open");
+  navToggle.setAttribute("aria-expanded", String(isOpen));
+});
 
-    let activeIndex = 0;
+navLinks.querySelectorAll("a").forEach((link) => {
+  link.addEventListener("click", () => {
+    navLinks.classList.remove("is-open");
+    navToggle.setAttribute("aria-expanded", "false");
+  });
+});
 
-    const showSlide = (index) => {
-      slides.forEach((slide, slideIndex) => {
-        slide.classList.toggle('active', slideIndex === index);
+// Scroll-reveal for elements marked .reveal
+const revealEls = document.querySelectorAll(".reveal");
+
+if ("IntersectionObserver" in window) {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
       });
-    };
+    },
+    { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
+  );
 
-    nextButton?.addEventListener('click', () => {
-      activeIndex = (activeIndex + 1) % slides.length;
-      showSlide(activeIndex);
-    });
-
-    prevButton?.addEventListener('click', () => {
-      activeIndex = (activeIndex - 1 + slides.length) % slides.length;
-      showSlide(activeIndex);
-    });
-  }
+  revealEls.forEach((el) => observer.observe(el));
+} else {
+  // fallback: just show everything
+  revealEls.forEach((el) => el.classList.add("is-visible"));
 }
